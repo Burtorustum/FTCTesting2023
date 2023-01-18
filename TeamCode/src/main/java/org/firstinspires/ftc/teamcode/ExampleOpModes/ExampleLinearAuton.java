@@ -17,7 +17,7 @@ public class ExampleLinearAuton extends LinearOpMode {
         // Wait for opmode start
         robot.runUntil(this::opModeIsActive);
 
-        // Turn 135d left
+        // Turn to 135d
         robot.drivetrain.turn(135);
         robot.runUntil(robot.drivetrain::atTargetAngle);
 
@@ -25,7 +25,7 @@ public class ExampleLinearAuton extends LinearOpMode {
         //robot.intake.intake();
         //robot.runUntil(robot.intake::coneDetected);
 
-        // Turn 90d right
+        // Turn to -90d (270d)
         //robot.intake.idle();
         robot.drivetrain.turn(-90);
         robot.runUntil(robot.drivetrain::atTargetAngle);
@@ -33,7 +33,7 @@ public class ExampleLinearAuton extends LinearOpMode {
         // Do nothing for 3 seconds
         robot.runForTime(3000);
 
-        // Turn 180d
+        // Turn to 0d
         robot.drivetrain.turn(0);
         robot.runUntil(robot.drivetrain::atTargetAngle);
 
