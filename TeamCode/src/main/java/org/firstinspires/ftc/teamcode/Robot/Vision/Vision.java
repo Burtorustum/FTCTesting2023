@@ -27,7 +27,7 @@ public abstract class Vision extends Subsystem {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT); //UPSIDE_DOWN or UPRIGHT
+                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT); //UPSIDE_DOWN or UPRIGHT
             }
 
             @Override

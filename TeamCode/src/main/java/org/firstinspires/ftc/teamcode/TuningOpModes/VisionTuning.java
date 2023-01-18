@@ -27,7 +27,7 @@ public class VisionTuning extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
 
         while (opModeIsActive() && !isStopRequested()) {
-            if (gamepad1.a && timer.seconds() > 0.15) {
+            if (gamepad1.a && timer.seconds() > 0.2) {
                 i = i + 1;
                 if (i >= stages.length) {
                     i = 0;
