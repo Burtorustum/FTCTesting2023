@@ -1,33 +1,29 @@
-package org.firstinspires.ftc.teamcode.LinearBlocking;
+package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
-public class Intake {
-    private final HardwareMap hwMap;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Robot.Structure.Subsystem;
 
+public class Intake extends Subsystem {
     private final DcMotor motor;
     private final RevColorSensorV3 color;
     private State mode = State.IDLE;
 
-    public Intake(HardwareMap hwMap) {
-        this.hwMap = hwMap;
+    public Intake(LinearOpMode opMode) {
+        super(opMode);
         this.motor = hwMap.dcMotor.get("intake");
         this.color = hwMap.get(RevColorSensorV3.class, "color");
-    }
-
-    public boolean coneDetected() {
-        NormalizedRGBA colorVals = color.getNormalizedColors();
-        return colorVals.red > 100 || colorVals.blue > 100;
     }
 
     enum State {
         IDLE, INTAKE, OUTTAKE;
     }
 
-    public void update() {
+    public void update(Telemetry telemetry) {
         switch (mode) {
             case IDLE:
                 this.motor.setPower(0);
@@ -53,5 +49,10 @@ public class Intake {
 
     public void outtake() {
         this.mode = State.OUTTAKE;
+    }
+
+    public boolean coneDetected() {
+        NormalizedRGBA colorVals = color.getNormalizedColors();
+        return colorVals.red > 100 || colorVals.blue > 100;
     }
 }
