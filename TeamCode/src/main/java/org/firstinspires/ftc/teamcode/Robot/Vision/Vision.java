@@ -11,7 +11,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 public abstract class Vision extends Subsystem {
-    protected final OpenCvWebcam webcam;
+    public final OpenCvWebcam webcam;
 
     protected Vision(LinearOpMode opMode) {
         super(opMode);

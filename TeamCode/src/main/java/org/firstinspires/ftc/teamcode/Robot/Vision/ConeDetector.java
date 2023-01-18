@@ -12,7 +12,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 public class ConeDetector extends Vision {
     public enum PipelineStage {
-        ERODE, DILATE, CVT_COLOR, CROP
+        INPUT, ERODE, DILATE, CVT_COLOR, CROP
     }
 
     private final Mat erodeOut = new Mat();
@@ -39,6 +39,8 @@ public class ConeDetector extends Vision {
             cropOut = new Mat(cvtColorOut, cropRect);
 
             switch (stageSelect) {
+                case INPUT:
+                    return input;
                 case ERODE:
                     return erodeOut;
                 case DILATE:
@@ -97,7 +99,9 @@ public class ConeDetector extends Vision {
                 this.determination = PARK_LOCATION.THREE;
             }
         }
-        telemetry.addData("Vision | Parking Determination: ", this.determination);
+
+        telemetry.addData("Vision | Parking Determination", this.determination);
+        telemetry.addData("Vision | Stage Select", this.stageSelect.name());
     }
 
     public PARK_LOCATION getDetermination() {

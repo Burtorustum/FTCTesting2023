@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.TestBot;
 
-@TeleOp(name = "Example blocking opmode", group = "")
+@TeleOp(name = "Example Teleop", group = "Example")
 public class ExampleLinearTeleop extends LinearOpMode {
 
     @Override

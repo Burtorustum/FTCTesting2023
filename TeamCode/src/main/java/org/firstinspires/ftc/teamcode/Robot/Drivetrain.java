@@ -64,7 +64,7 @@ public class Drivetrain extends Subsystem {
     }
 
     public void update(Telemetry telemetry) {
-        telemetry.addData("Drivetrain | Mode:", this.mode.name());
+        telemetry.addData("Drivetrain | Mode", this.mode.name());
         switch (mode) {
             case IDLE:
                 flPow = 0;
@@ -88,8 +88,8 @@ public class Drivetrain extends Subsystem {
                     this.mode = State.IDLE;
                 }
 
-                telemetry.addData("Drivetrain | Angle Error:", Math.toDegrees(error));
-                telemetry.addData("Drivetrain | Output:", output);
+                telemetry.addData("Drivetrain | Angle Error", Math.toDegrees(error));
+                telemetry.addData("Drivetrain | Output", output);
                 break;
 
             case DIRECT_CONTROL:

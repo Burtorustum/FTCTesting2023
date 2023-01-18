@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.TestBot;
 
-@Autonomous(name = "Example blocking opmode", group = "")
+@Autonomous(name = "Example Auton", group = "Example")
 public class ExampleLinearAuton extends LinearOpMode {
 
     @Override
