@@ -8,56 +8,62 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import java.text.DecimalFormat;
+
 @Config
 public class ConeDetector extends Vision {
+
+    private PARK_LOCATION determination = PARK_LOCATION.UNKNOWN;
+
+    // Dashboard-configurable tuning vars
+    public static Rect cropRect = new Rect(270, 160, 110, 150);
+    public static Size blurKSize = new Size(3, 3);
+    public static int erodeIterations = 12;
+    public static int dilateIterations = 2;
+
+    private PipelineStage stageSelect = PipelineStage.OUTPUT;
+
     public enum PipelineStage {
-        INPUT, ERODE, DILATE, CVT_COLOR, CROP
+        INPUT, CROP,
+        BLUR, ERODE, DILATE,
+        CVT_COLOR, OUTPUT;
+
+        public Mat result;
+
+        PipelineStage() {
+            this.result = new Mat();
+        }
     }
-
-    private final Mat erodeOut = new Mat();
-    private final Mat dilateOut = new Mat();
-
-    private final Mat cvtColorOut = new Mat();
-
-    public static Rect cropRect = new Rect(280, 140, 50, 50);
-    public static int erodeIterations = 3;
-    public static int dilateIterations = 5;
-    private Mat cropOut;
-
-    private PipelineStage stageSelect = PipelineStage.CROP;
 
     public final OpenCvPipeline pipeline = new OpenCvPipeline() {
         @Override
         public Mat processFrame(Mat input) {
-            // Erode / Dilate -----------------------------------
-            Imgproc.erode(input, erodeOut, new Mat(), new Point(-1, -1), erodeIterations, Core.BORDER_CONSTANT);
-            Imgproc.dilate(erodeOut, dilateOut, new Mat(), new Point(-1, -1), dilateIterations, Core.BORDER_CONSTANT);
 
-            // Convert Color -------------------------------
-            Imgproc.cvtColor(dilateOut, cvtColorOut, Imgproc.COLOR_RGBA2RGB);
+            // Input
+            PipelineStage.INPUT.result = input;
 
-            // Crop --------------------------------
-            cropOut = new Mat(cvtColorOut, cropRect);
+            // Crop
+            PipelineStage.CROP.result = input.submat(cropRect);
 
-            switch (stageSelect) {
-                case INPUT:
-                    return input;
-                case ERODE:
-                    return erodeOut;
-                case DILATE:
-                    return dilateOut;
-                case CVT_COLOR:
-                    return cvtColorOut;
-                default:
-                    return cropOut;
-            }
+            // Blur / Erode / Dilate
+            Imgproc.blur(PipelineStage.CROP.result, PipelineStage.BLUR.result, blurKSize, new Point(-1, -1));
+            Imgproc.erode(PipelineStage.BLUR.result, PipelineStage.ERODE.result, new Mat(), new Point(-1, -1), erodeIterations, Core.BORDER_DEFAULT);
+            Imgproc.dilate(PipelineStage.ERODE.result, PipelineStage.DILATE.result, new Mat(), new Point(-1, -1), dilateIterations, Core.BORDER_DEFAULT);
+
+            // Convert Color
+            Imgproc.cvtColor(PipelineStage.DILATE.result, PipelineStage.CVT_COLOR.result, Imgproc.COLOR_RGBA2RGB);
+
+            // Output
+            PipelineStage.OUTPUT.result = PipelineStage.CVT_COLOR.result;
+
+            // Return the desired frame from the pipeline to the camera stream
+            return stageSelect.result;
         }
     };
-
-    private PARK_LOCATION determination = PARK_LOCATION.UNKNOWN;
 
     public ConeDetector(LinearOpMode opMode) {
         super(opMode);
@@ -66,7 +72,8 @@ public class ConeDetector extends Vision {
 
     @Override
     public void update(Telemetry telemetry) {
-        if (cropOut == null) {
+        Mat output = PipelineStage.OUTPUT.result;
+        if (output == null) {
             this.determination = PARK_LOCATION.UNKNOWN;
         } else {
             try {
@@ -74,40 +81,48 @@ public class ConeDetector extends Vision {
                 double g = 0;
                 double b = 0;
 
-                for (int x = 0; x < cropRect.width; x++) {
-                    for (int y = 0; y < cropRect.height; y++) {
-                        double[] values = cropOut.get(x, y);
+                for (int x = 0; x < output.cols(); x++) {
+                    for (int y = 0; y < output.rows(); y++) {
+                        double[] values = output.get(y, x);
                         r += values[0];
                         g += values[1];
                         b += values[2];
                     }
                 }
 
-                double r_avg = r / cropRect.width * cropRect.height;
-                double g_avg = g / cropRect.width * cropRect.height;
-                double b_avg = b / cropRect.width * cropRect.height;
+                double outputArea = output.cols() * output.rows();
+                double rAvg = r / outputArea;
+                double gAvg = g / outputArea;
+                double bAvg = b / outputArea;
+                double highestAvg = Math.max(rAvg, Math.max(gAvg, bAvg));
 
-                double magRed = Math.sqrt(Math.pow((255 - r_avg), 2) + Math.pow(g_avg, 2) + Math.pow(b_avg, 2));
-                double magGreen = Math.sqrt(Math.pow((r_avg), 2) + Math.pow(255 - g_avg, 2) + Math.pow(b_avg, 2));
-                double magBlue = Math.sqrt(Math.pow((r_avg), 2) + Math.pow(g_avg, 2) + Math.pow(255 - b_avg, 2));
-
-                double lowest = Math.min(magRed, Math.min(magGreen, magBlue));
-
-                if (lowest == magBlue) {
+                if (highestAvg == bAvg) {
                     this.determination = PARK_LOCATION.ONE;
-                } else if (lowest == magRed) {
+                } else if (highestAvg == rAvg) {
                     this.determination = PARK_LOCATION.TWO;
                 } else {
                     this.determination = PARK_LOCATION.THREE;
                 }
+                DecimalFormat df = new DecimalFormat("#.###");
+                telemetry.addData("Vision | Avg Red", df.format(rAvg));
+                telemetry.addData("Vision | Avg Green", df.format(gAvg));
+                telemetry.addData("Vision | Avg Blue", df.format(bAvg));
             } catch (Exception e) {
                 telemetry.addData("Vision | Error", e.getMessage());
-                telemetry.update();
             }
         }
 
-        telemetry.addData("Vision | Parking Determination", this.determination);
-        telemetry.addData("Vision | Stage Select", this.stageSelect.name());
+        telemetry.addData("Vision | Determination", this.determination);
+        StringBuilder select = new StringBuilder();
+        for (PipelineStage p : PipelineStage.values()) {
+            if (stageSelect == p) {
+                select.append("*").append(p.name()).append("*");
+            } else {
+                select.append(p.name());
+            }
+            select.append(" -> ");
+        }
+        telemetry.addLine(select.toString());
     }
 
     public PARK_LOCATION getDetermination() {
@@ -115,6 +130,7 @@ public class ConeDetector extends Vision {
     }
 
     public void setStageSelect(PipelineStage stage) {
-        this.stageSelect = stage;
+        stageSelect = stage;
     }
 }
+

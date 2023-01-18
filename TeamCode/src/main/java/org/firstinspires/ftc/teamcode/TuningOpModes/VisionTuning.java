@@ -22,18 +22,26 @@ public class VisionTuning extends LinearOpMode {
         dashboard.startCameraStream(robot.coneDetector.webcam, 0);
 
         robot.runUntil(this::opModeIsActive);
+
         ConeDetector.PipelineStage[] stages = ConeDetector.PipelineStage.values();
-        int i = 0;
+        int i = stages.length - 1;
         ElapsedTime timer = new ElapsedTime();
 
         while (opModeIsActive() && !isStopRequested()) {
-            if (gamepad1.a && timer.seconds() > 0.2) {
+            if (gamepad1.dpad_right && timer.seconds() > 0.12) {
                 i = i + 1;
-                if (i >= stages.length) {
-                    i = 0;
-                }
+                timer.reset();
+            } else if (gamepad1.dpad_left && timer.seconds() > 0.12) {
+                i = i - 1;
                 timer.reset();
             }
+
+            if (i >= stages.length) {
+                i = 0;
+            } else if (i < 0) {
+                i = stages.length - 1;
+            }
+
             robot.coneDetector.setStageSelect(stages[i]);
 
             robot.update();
