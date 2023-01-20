@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.PID;
+package org.firstinspires.ftc.teamcode.Control;
 
 public class PIDFCoefficients {
     public double kp, ki, kd, kf, maxIntegralSum, lowPassGain;

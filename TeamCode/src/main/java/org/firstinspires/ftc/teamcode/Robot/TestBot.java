@@ -1,22 +1,33 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.teamcode.Robot.Structure.Robot;
-import org.firstinspires.ftc.teamcode.Robot.Vision.ConeDetector;
 
 public class TestBot extends Robot {
 
-    public final Drivetrain drivetrain;
-    public final ConeDetector coneDetector;
+    // Sensors multiple subsystems require
+    public final IMU imu;
+
+    // Subsystems
+    public final MecanumDrivetrain drivetrain;
+    //public final Intake intake;
 
     public TestBot(LinearOpMode opMode) {
         super(opMode);
 
-        drivetrain = new Drivetrain(opMode);
-        this.registerSubsystem(drivetrain);
+        this.imu = hwMap.get(IMU.class, "imu");
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.LEFT
+        )));
 
-        coneDetector = new ConeDetector(opMode);
-        this.registerSubsystem(coneDetector);
+        this.drivetrain = new MecanumDrivetrain(opMode, imu);
+        this.registerSubsystem(this.drivetrain);
+
+        //this.intake = new Intake(opMode);
+        //this.registerSubsystem(this.intake);
     }
 }

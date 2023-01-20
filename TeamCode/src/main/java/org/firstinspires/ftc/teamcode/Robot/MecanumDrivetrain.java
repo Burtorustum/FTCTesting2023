@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxNackException;
 import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,27 +13,40 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.PID.PIDFCoefficients;
-import org.firstinspires.ftc.teamcode.PID.PIDFController;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Control.PIDFCoefficients;
+import org.firstinspires.ftc.teamcode.Control.PIDFController;
 import org.firstinspires.ftc.teamcode.Robot.Structure.Subsystem;
 
 import java.util.List;
 
-public class Drivetrain extends Subsystem {
+@Config
+public class MecanumDrivetrain extends Subsystem {
     private final DcMotorEx fl, fr, bl, br;
     private double flPow, frPow, blPow, brPow;
     private final IMU imu;
 
-    private final PIDFController turnController =
-            new PIDFController(new PIDFCoefficients(2.2, 0.001, 0.07));
-    private int angleTarget;
+    private static final double COUNTS_PER_REV = 537.7;
+    private static final double WHEEL_DIAMETER_MM = 96;
+    private static final double DRIVE_REDUCTION = 1;
+    private static final double COUNTS_PER_MM = (COUNTS_PER_REV * DRIVE_REDUCTION) /
+            (WHEEL_DIAMETER_MM * Math.PI);
+
+    public static PIDFCoefficients turnPIDCoeff = new PIDFCoefficients(2.20, 0.001, 0.07, 0.00);
+    private final PIDFController turnController = new PIDFController(turnPIDCoeff);
+    private double angleTarget;
+
+    public static PIDFCoefficients drivePIDCoeff = new PIDFCoefficients(0.005, 0.00, 0.00, 0.00);
+    private final PIDFController driveController = new PIDFController(drivePIDCoeff);
+    private double distanceTarget;
 
     private State mode = State.IDLE;
+
     enum State {
-        IDLE, TURN, DIRECT_CONTROL
+        IDLE, TURN, DRIVE_DISTANCE, DIRECT_CONTROL
     }
 
-    public Drivetrain(LinearOpMode opMode) {
+    public MecanumDrivetrain(LinearOpMode opMode, IMU imu) {
         super(opMode);
 
         fl = hwMap.get(DcMotorEx.class, "fl");
@@ -56,11 +69,7 @@ public class Drivetrain extends Subsystem {
         bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        imu = hwMap.get(IMU.class, "imu");
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT
-        )));
+        this.imu = imu;
     }
 
     public void update(Telemetry telemetry) {
@@ -75,21 +84,47 @@ public class Drivetrain extends Subsystem {
 
             case TURN:
                 double botAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-                double error = -AngleUnit.normalizeRadians(AngleUnit.RADIANS.fromUnit(AngleUnit.DEGREES, this.angleTarget) - botAngle);
+                double angleError = -AngleUnit.normalizeRadians(AngleUnit.DEGREES.toRadians(this.angleTarget) - botAngle);
 
-                double output = turnController.update(this.angleTarget, error);
-                flPow = output;
-                blPow = output;
-                frPow = -output;
-                brPow = -output;
+                double turnOutput = turnController.update(this.angleTarget, angleError);
+                flPow = turnOutput;
+                blPow = turnOutput;
+                frPow = -turnOutput;
+                brPow = -turnOutput;
 
                 // TODO: is this the correct value?
-                if (output < 0.01) {
+                if (turnOutput < 0.01) {
                     this.mode = State.IDLE;
                 }
 
-                telemetry.addData("Drivetrain | Angle Error", Math.toDegrees(error));
-                telemetry.addData("Drivetrain | Output", output);
+                telemetry.addData("Drivetrain | Bot Angle", Math.toDegrees(botAngle));
+                telemetry.addData("Drivetrain | Target Angle", angleTarget);
+                telemetry.addData("Drivetrain | Angle Error", Math.toDegrees(angleError));
+                telemetry.addData("Drivetrain | Turn Output", turnOutput);
+                break;
+
+            case DRIVE_DISTANCE:
+                double botDistance = (fl.getCurrentPosition()
+                        + fr.getCurrentPosition()
+                        + bl.getCurrentPosition()
+                        + br.getCurrentPosition()) / 4.0;
+                double distanceError = distanceTarget - botDistance;
+
+                double driveOutput = driveController.update(this.distanceTarget, distanceError);
+                flPow = driveOutput;
+                blPow = driveOutput;
+                frPow = driveOutput;
+                brPow = driveOutput;
+
+                // TODO: is this the correct value?
+                if (driveOutput < 0.01) {
+                    this.mode = State.IDLE;
+                }
+
+                telemetry.addData("Drivetrain | Bot Distance", botDistance);
+                telemetry.addData("Drivetrain | Target Distance", distanceTarget);
+                telemetry.addData("Drivetrain | Distance Error", distanceError);
+                telemetry.addData("Drivetrain | Drive Output", driveOutput);
                 break;
 
             case DIRECT_CONTROL:
@@ -107,7 +142,13 @@ public class Drivetrain extends Subsystem {
         this.mode = State.TURN;
     }
 
-    public boolean atTargetAngle() {
+    public void driveDistance(int distanceTarget, DistanceUnit unit) {
+        double targetMM = unit.toMm(distanceTarget);
+        this.distanceTarget = targetMM * COUNTS_PER_MM;
+        this.mode = State.DRIVE_DISTANCE;
+    }
+
+    public boolean driveComplete() {
         return this.mode == State.IDLE;
     }
 

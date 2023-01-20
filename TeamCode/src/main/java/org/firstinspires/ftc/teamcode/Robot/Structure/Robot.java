@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot.Structure;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -21,6 +22,12 @@ public abstract class Robot {
         this.hwMap = opMode.hardwareMap;
         this.telemetry = opMode.telemetry;
 
+        // Setup bulk encoder reads using AUTO caching mode
+        List<LynxModule> allHubs = hwMap.getAll(LynxModule.class);
+        for (LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
         this.subsystems = new ArrayList<>();
     }
 
@@ -31,10 +38,14 @@ public abstract class Robot {
         telemetry.update();
     }
 
-    protected void registerSubsystem(Subsystem subsystem) {
+    public void registerSubsystem(Subsystem subsystem) {
         if (!this.subsystems.contains(subsystem)) {
             this.subsystems.add(subsystem);
         }
+    }
+
+    public void deregisterSubsystem(Subsystem subsystem) {
+        this.subsystems.remove(subsystem);
     }
 
     public interface Target {

@@ -20,7 +20,7 @@ public class ConeDetector extends Vision {
     private PARK_LOCATION determination = PARK_LOCATION.UNKNOWN;
 
     // Dashboard-configurable tuning vars
-    public static Rect cropRect = new Rect(270, 160, 110, 150);
+    public static Rect cropRect = new Rect(250, 250, 300, 300);
     public static Size blurKSize = new Size(3, 3);
     public static int erodeIterations = 12;
     public static int dilateIterations = 2;
@@ -33,7 +33,6 @@ public class ConeDetector extends Vision {
         CVT_COLOR, OUTPUT;
 
         public Mat result;
-
         PipelineStage() {
             this.result = new Mat();
         }
@@ -42,12 +41,15 @@ public class ConeDetector extends Vision {
     public final OpenCvPipeline pipeline = new OpenCvPipeline() {
         @Override
         public Mat processFrame(Mat input) {
-
             // Input
             PipelineStage.INPUT.result = input;
 
             // Crop
-            PipelineStage.CROP.result = input.submat(cropRect);
+            try {
+                PipelineStage.CROP.result = input.submat(cropRect);
+            } catch (Exception ignored) {
+                PipelineStage.CROP.result = input;
+            }
 
             // Blur / Erode / Dilate
             Imgproc.blur(PipelineStage.CROP.result, PipelineStage.BLUR.result, blurKSize, new Point(-1, -1));
@@ -113,6 +115,7 @@ public class ConeDetector extends Vision {
         }
 
         telemetry.addData("Vision | Determination", this.determination);
+
         StringBuilder select = new StringBuilder();
         for (PipelineStage p : PipelineStage.values()) {
             if (stageSelect == p) {
@@ -122,6 +125,9 @@ public class ConeDetector extends Vision {
             }
             select.append(" -> ");
         }
+        select.delete(select.length() - 4, select.length());
+
+        telemetry.addLine("Vision | Stage Selection");
         telemetry.addLine(select.toString());
     }
 
@@ -133,4 +139,3 @@ public class ConeDetector extends Vision {
         stageSelect = stage;
     }
 }
-

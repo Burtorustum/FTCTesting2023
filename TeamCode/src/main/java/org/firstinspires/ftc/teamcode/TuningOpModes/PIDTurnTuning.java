@@ -6,28 +6,31 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Robot.Vision.ConeDetector;
+import org.firstinspires.ftc.teamcode.Robot.TestBot;
+
+// See https://www.ctrlaltftc.com/the-pid-controller for more info on PID control
+// Designed for use with FTC Dashboard
 
 @Config
-@TeleOp(name = "Vision Tuner", group = "Tuning")
-public class VisionTuning extends LinearOpMode {
-    public static ConeDetector.PipelineStage stage = ConeDetector.PipelineStage.OUTPUT;
+@TeleOp(name = "PID Turn Tuner", group = "Tuning")
+public class PIDTurnTuning extends LinearOpMode {
+    public static int target = 90;
 
     @Override
     public void runOpMode() throws InterruptedException {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
-        ConeDetector detector = new ConeDetector(this);
-        dashboard.startCameraStream(detector.webcam, 0);
+        TestBot robot = new TestBot(this);
+
+        telemetry.addLine("Ready!");
+        telemetry.update();
 
         waitForStart();
-        while (opModeIsActive() && !isStopRequested()) {
-            detector.setStageSelect(stage);
-            detector.update(telemetry);
-            telemetry.update();
-        }
 
-        detector.closeCamera();
+        while (!isStopRequested()) {
+            robot.drivetrain.turn(target);
+            robot.update();
+        }
     }
 }

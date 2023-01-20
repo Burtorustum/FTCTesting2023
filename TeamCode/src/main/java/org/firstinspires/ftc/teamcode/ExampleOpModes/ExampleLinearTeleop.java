@@ -18,9 +18,7 @@ public class ExampleLinearTeleop extends LinearOpMode {
         robot.runUntil(this::opModeIsActive);
 
         while (opModeIsActive() && !isStopRequested()) {
-
             robot.drivetrain.fieldCentric(gamepad1);
-
             robot.update();
         }
     }
