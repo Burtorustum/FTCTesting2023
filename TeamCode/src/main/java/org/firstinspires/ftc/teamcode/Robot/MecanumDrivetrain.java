@@ -93,7 +93,7 @@ public class MecanumDrivetrain extends Subsystem {
                 brPow = -turnOutput;
 
                 // TODO: is this the correct value?
-                if (turnOutput < 0.01) {
+                if (turnOutput <= 0.01) {
                     this.mode = State.IDLE;
                 }
 
@@ -117,7 +117,7 @@ public class MecanumDrivetrain extends Subsystem {
                 brPow = driveOutput;
 
                 // TODO: is this the correct value?
-                if (driveOutput < 0.01) {
+                if (driveOutput <= 0.01) {
                     this.mode = State.IDLE;
                 }
 
@@ -157,11 +157,11 @@ public class MecanumDrivetrain extends Subsystem {
         List<LynxModule> hubs = this.hwMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs) {
             if (hub.isParent()) {
-                new LynxResetMotorEncoderCommand(hubs.get(0), fl.getPortNumber()).send();
-                new LynxResetMotorEncoderCommand(hubs.get(0), bl.getPortNumber()).send();
+                new LynxResetMotorEncoderCommand(hub, fl.getPortNumber()).send();
+                new LynxResetMotorEncoderCommand(hub, bl.getPortNumber()).send();
             } else {
-                new LynxResetMotorEncoderCommand(hubs.get(0), fr.getPortNumber()).send();
-                new LynxResetMotorEncoderCommand(hubs.get(0), br.getPortNumber()).send();
+                new LynxResetMotorEncoderCommand(hub, fr.getPortNumber()).send();
+                new LynxResetMotorEncoderCommand(hub, br.getPortNumber()).send();
             }
         }
     }
