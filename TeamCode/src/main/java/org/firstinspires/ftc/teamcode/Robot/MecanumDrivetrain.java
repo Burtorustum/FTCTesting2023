@@ -6,6 +6,7 @@ import com.qualcomm.hardware.lynx.LynxNackException;
 import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -40,20 +41,20 @@ public class MecanumDrivetrain extends Subsystem {
   public MecanumDrivetrain(LinearOpMode opMode, IMU imu) {
     super(opMode);
 
-    fl = hwMap.get(DcMotorEx.class, "fl");
-    fr = hwMap.get(DcMotorEx.class, "fr");
-    bl = hwMap.get(DcMotorEx.class, "bl");
-    br = hwMap.get(DcMotorEx.class, "br");
+    fl = hwMap.get(DcMotorEx.class, "FL");
+    fr = hwMap.get(DcMotorEx.class, "FR");
+    bl = hwMap.get(DcMotorEx.class, "BL");
+    br = hwMap.get(DcMotorEx.class, "BR");
 
     fl.setDirection(DcMotorSimple.Direction.REVERSE);
     fr.setDirection(DcMotorSimple.Direction.FORWARD);
     bl.setDirection(DcMotorSimple.Direction.REVERSE);
     br.setDirection(DcMotorSimple.Direction.FORWARD);
 
-    fl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    fr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    bl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    br.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    fl.setMode(RunMode.STOP_AND_RESET_ENCODER);
+    fr.setMode(RunMode.STOP_AND_RESET_ENCODER);
+    bl.setMode(RunMode.STOP_AND_RESET_ENCODER);
+    br.setMode(RunMode.STOP_AND_RESET_ENCODER);
 
     fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -61,6 +62,14 @@ public class MecanumDrivetrain extends Subsystem {
     br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
     this.imu = imu;
+  }
+
+  @Override
+  public void start() {
+    fl.setMode(RunMode.RUN_WITHOUT_ENCODER);
+    fr.setMode(RunMode.RUN_WITHOUT_ENCODER);
+    bl.setMode(RunMode.RUN_WITHOUT_ENCODER);
+    br.setMode(RunMode.RUN_WITHOUT_ENCODER);
   }
 
   public void update(Telemetry telemetry) {

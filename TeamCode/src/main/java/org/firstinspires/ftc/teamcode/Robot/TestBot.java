@@ -4,15 +4,12 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.IMU;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Robot.Sensors.LVMaxSonarEZ;
 import org.firstinspires.ftc.teamcode.Robot.Structure.Robot;
-import org.firstinspires.ftc.teamcode.Robot.Structure.Subsystem;
 
 public class TestBot extends Robot {
 
-  // Sensors multiple subsystems require
+  // Sensors
   public final IMU imu;
   public final LVMaxSonarEZ ultrasonic;
   public final Rev2mDistanceSensor tof;
@@ -39,13 +36,12 @@ public class TestBot extends Robot {
     this.lift = new Lift(opMode);
     this.registerSubsystem(this.lift);
 
-    this.registerSubsystem(new Subsystem(opMode) {
+    /*this.registerSubsystem(new Subsystem(opMode) {
       @Override
       public void update(Telemetry telemetry) {
         telemetry.addData("ToF | Distance", tof.getDistance(DistanceUnit.INCH));
-        telemetry.addData("MaxSonarEZ | Distance",
-            ultrasonic.getDistance(DistanceUnit.INCH));
+        telemetry.addData("MaxSonarEZ | Distance", ultrasonic.getDistance(DistanceUnit.INCH));
       }
-    });
+    });*/
   }
 }

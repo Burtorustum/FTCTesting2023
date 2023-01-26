@@ -22,9 +22,11 @@ public class PIDFLiftTuning extends LinearOpMode {
     telemetry.update();
 
     waitForStart();
+    robot.lift.start();
 
     while (!isStopRequested()) {
-      robot.lift.setVelocityTarget(gamepad1.right_stick_y);
+      //robot.lift.setVelocityTarget(gamepad1.right_stick_y);
+
       robot.update();
     }
   }

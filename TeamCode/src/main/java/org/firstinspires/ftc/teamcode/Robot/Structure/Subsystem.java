@@ -12,5 +12,8 @@ public abstract class Subsystem {
     hwMap = opMode.hardwareMap;
   }
 
+  public void start() {
+  }
+
   public abstract void update(Telemetry telemetry);
 }

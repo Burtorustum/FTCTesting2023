@@ -29,6 +29,12 @@ public abstract class Robot {
     this.subsystems = new ArrayList<>();
   }
 
+  public void start() {
+    for (Subsystem sys : this.subsystems) {
+      sys.start();
+    }
+  }
+
   public void update() {
     for (Subsystem sys : this.subsystems) {
       sys.update(telemetry);
