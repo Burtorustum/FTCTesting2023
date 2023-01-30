@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.lynx.LynxNackException;
-import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
-import java.util.List;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -26,15 +22,23 @@ public class MecanumDrivetrain extends Subsystem {
   private static final double DRIVE_REDUCTION = 1;
   private static final double COUNTS_PER_MM = (COUNTS_PER_REV * DRIVE_REDUCTION) /
       (WHEEL_DIAMETER_MM * Math.PI);
-  public static PIDFCoefficients turnPIDCoeff = new PIDFCoefficients(2.20, 0.001, 0.07, 0.00);
-  public static PIDFCoefficients drivePIDCoeff = new PIDFCoefficients(0.005, 0.00, 0.00, 0.00);
+  public static double STRAFE_MULTIPLIER = 1.0;
+
   private final DcMotorEx fl, fr, bl, br;
   private final IMU imu;
+
+  public static PIDFCoefficients turnPIDCoeff = new PIDFCoefficients(2.20, 0.001, 0.07, 0.00);
   private final PIDFController turnController = new PIDFController(turnPIDCoeff);
-  private final PIDFController driveController = new PIDFController(drivePIDCoeff);
+
+  public static PIDFCoefficients drivePIDCoeff = new PIDFCoefficients(0.005, 0.00, 0.00, 0.00);
+  private final PIDFController flController = new PIDFController(drivePIDCoeff);
+  private final PIDFController frController = new PIDFController(drivePIDCoeff);
+  private final PIDFController blController = new PIDFController(drivePIDCoeff);
+  private final PIDFController brController = new PIDFController(drivePIDCoeff);
+
   private double flPow, frPow, blPow, brPow;
   private double angleTarget;
-  private double distanceTarget;
+  private int flTarget, frTarget, blTarget, brTarget;
 
   private State mode = State.IDLE;
 
@@ -72,6 +76,10 @@ public class MecanumDrivetrain extends Subsystem {
     br.setMode(RunMode.RUN_WITHOUT_ENCODER);
   }
 
+  enum State {
+    IDLE, TURN, DRIVE_DISTANCE, DIRECT_CONTROL
+  }
+
   public void update(Telemetry telemetry) {
     telemetry.addData("Drivetrain | Mode", this.mode.name());
     switch (mode) {
@@ -93,7 +101,6 @@ public class MecanumDrivetrain extends Subsystem {
         frPow = -turnOutput;
         brPow = -turnOutput;
 
-        // TODO: is this the correct value?
         if (turnOutput <= 0.01) {
           this.mode = State.IDLE;
         }
@@ -105,27 +112,22 @@ public class MecanumDrivetrain extends Subsystem {
         break;
 
       case DRIVE_DISTANCE:
-        double botDistance = (fl.getCurrentPosition()
-            + fr.getCurrentPosition()
-            + bl.getCurrentPosition()
-            + br.getCurrentPosition()) / 4.0;
-        double distanceError = distanceTarget - botDistance;
+        int flError = this.flTarget - this.fl.getCurrentPosition();
+        int frError = this.frTarget - this.fr.getCurrentPosition();
+        int blError = this.blTarget - this.bl.getCurrentPosition();
+        int brError = this.brTarget - this.br.getCurrentPosition();
 
-        double driveOutput = driveController.update(this.distanceTarget, distanceError);
-        flPow = driveOutput;
-        blPow = driveOutput;
-        frPow = driveOutput;
-        brPow = driveOutput;
+        flPow = flController.update(this.flTarget, flError);
+        frPow = frController.update(this.brTarget, frError);
+        blPow = blController.update(this.brTarget, blError);
+        brPow = brController.update(this.brTarget, brError);
 
-        // TODO: is this the correct value?
-        if (driveOutput <= 0.01) {
+        if ((flPow + frPow + blPow + brPow) / 4.0 <= 0.01) {
           this.mode = State.IDLE;
         }
 
-        telemetry.addData("Drivetrain | Bot Distance", botDistance);
-        telemetry.addData("Drivetrain | Target Distance", distanceTarget);
-        telemetry.addData("Drivetrain | Distance Error", distanceError);
-        telemetry.addData("Drivetrain | Drive Output", driveOutput);
+        telemetry.addData("Drivetrain | Average Error",
+            (flError + frError + blError + brError) / 4.0);
         break;
 
       case DIRECT_CONTROL:
@@ -144,35 +146,52 @@ public class MecanumDrivetrain extends Subsystem {
   }
 
   public void driveDistance(int distanceTarget, DistanceUnit unit) {
-    double targetMM = unit.toMm(distanceTarget);
-    this.distanceTarget = targetMM * COUNTS_PER_MM;
+    int targetEncoders = (int) (unit.toMm(distanceTarget) * COUNTS_PER_MM);
+    this.setEncoderTargets(
+        targetEncoders + this.fl.getCurrentPosition(),
+        targetEncoders + this.fr.getCurrentPosition(),
+        targetEncoders + this.bl.getCurrentPosition(),
+        targetEncoders + this.br.getCurrentPosition()
+    );
+
     this.mode = State.DRIVE_DISTANCE;
+  }
+
+  public void strafeDistance(int distanceTarget, DistanceUnit unit) {
+    int targetEncoders = (int) (unit.toMm(distanceTarget * STRAFE_MULTIPLIER) * COUNTS_PER_MM);
+    this.setEncoderTargets(
+        targetEncoders + this.fl.getCurrentPosition(),
+        -targetEncoders + this.fr.getCurrentPosition(),
+        -targetEncoders + this.bl.getCurrentPosition(),
+        targetEncoders + this.br.getCurrentPosition()
+    );
+
+    this.mode = State.DRIVE_DISTANCE;
+  }
+
+  private void setEncoderTargets(int flTarget, int frTarget, int blTarget, int brTarget) {
+    this.flTarget = flTarget;
+    this.frTarget = frTarget;
+    this.blTarget = blTarget;
+    this.brTarget = brTarget;
   }
 
   public boolean driveComplete() {
     return this.mode == State.IDLE;
   }
 
-  // TODO: test
-  public void zeroMotorEncoders() throws LynxNackException, InterruptedException {
-    List<LynxModule> hubs = this.hwMap.getAll(LynxModule.class);
-    for (LynxModule hub : hubs) {
-      if (hub.isParent()) {
-        new LynxResetMotorEncoderCommand(hub, fl.getPortNumber()).send();
-        new LynxResetMotorEncoderCommand(hub, bl.getPortNumber()).send();
-      } else {
-        new LynxResetMotorEncoderCommand(hub, fr.getPortNumber()).send();
-        new LynxResetMotorEncoderCommand(hub, br.getPortNumber()).send();
-      }
-    }
-  }
-
-  // TODO: test
   public boolean isEncoderResetFinished() {
     return fl.getCurrentPosition() == 0
         && fr.getCurrentPosition() == 0
         && bl.getCurrentPosition() == 0
         && br.getCurrentPosition() == 0;
+  }
+
+  public void setMode(DcMotor.RunMode mode) {
+    this.fl.setMode(mode);
+    this.fr.setMode(mode);
+    this.bl.setMode(mode);
+    this.br.setMode(mode);
   }
 
   public void directControl(double flPow, double frPow, double blPow, double brPow) {
@@ -197,9 +216,5 @@ public class MecanumDrivetrain extends Subsystem {
     double brPow = (rotY + rotX - rx) / denominator;
 
     this.directControl(flPow, frPow, blPow, brPow);
-  }
-
-  enum State {
-    IDLE, TURN, DRIVE_DISTANCE, DIRECT_CONTROL
   }
 }

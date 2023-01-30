@@ -60,6 +60,7 @@ public class ConeDetector extends Vision {
     setPipelineAndOpen(pipeline);
   }
 
+  // TODO: should be nothing in update -- will save computation if we only do this when new frame is ready (processFrame)
   @Override
   public void update(Telemetry telemetry) {
     Mat output = PipelineStage.OUTPUT.result;

@@ -28,9 +28,10 @@ public class PIDTurnTuning extends LinearOpMode {
 
     waitForStart();
 
-    while (!isStopRequested()) {
+    robot.runWhile(() -> {
       robot.drivetrain.turn(target);
-      robot.update();
-    }
+
+      return true;
+    });
   }
 }

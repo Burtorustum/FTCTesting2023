@@ -1,44 +1,56 @@
 package org.firstinspires.ftc.teamcode.ExampleOpModes;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Robot.TestBot;
+import org.firstinspires.ftc.teamcode.Robot.Vision.ConeDetector;
 
+@Config
 @Autonomous(name = "Example Auton", group = "Example")
 public class ExampleLinearAuton extends LinearOpMode {
+
+  public static int FORWARD_DIST = 24;
+
+  public static int PARK_ONE_DIST = -24;
+  public static int PARK_TWO_DIST = 0;
+  public static int PARK_THREE_DIST = 24;
+
+  private int parkDistance;
 
   @Override
   public void runOpMode() throws InterruptedException {
 
     // Init a robot object
     TestBot robot = new TestBot(this);
+    // Enable vision for this opmode
+    ConeDetector detector = new ConeDetector(this);
 
     // Wait for opmode start
     robot.runUntil(this::opModeIsActive);
+    // disable vision once auton has begun
+    detector.stopStreaming();
 
-    // Turn to 135d
-    robot.drivetrain.turn(135);
+    switch (detector.getDetermination()) {
+      case UNKNOWN:
+      case ONE:
+        this.parkDistance = PARK_ONE_DIST;
+        break;
+      case TWO:
+        this.parkDistance = PARK_TWO_DIST;
+        break;
+      case THREE:
+        this.parkDistance = PARK_THREE_DIST;
+        break;
+    }
+
+    // Drive forward
+    robot.drivetrain.driveDistance(FORWARD_DIST, DistanceUnit.INCH);
     robot.runUntil(robot.drivetrain::driveComplete);
 
-    // Intake until cone picked up
-    //robot.intake.intake();
-    //robot.runUntil(robot.intake::coneDetected);
-
-    // Turn to -90d (270d)
-    //robot.intake.idle();
-    robot.drivetrain.turn(-90);
-    robot.runUntil(robot.drivetrain::driveComplete);
-
-    // Drive 20cm forward
-    robot.drivetrain.driveDistance(20, DistanceUnit.CM);
-    robot.runUntil(robot.drivetrain::driveComplete);
-
-    // Do nothing for 3 seconds
-    robot.runForTime(3000);
-
-    // Turn to 0d
-    robot.drivetrain.turn(0);
+    // Strafe to park
+    robot.drivetrain.strafeDistance(parkDistance, DistanceUnit.INCH);
     robot.runUntil(robot.drivetrain::driveComplete);
 
     // Wait for stop

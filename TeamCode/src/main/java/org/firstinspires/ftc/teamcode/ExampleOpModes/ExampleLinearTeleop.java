@@ -19,8 +19,8 @@ public class ExampleLinearTeleop extends LinearOpMode {
     // Wait for opmode start
     waitForStart();
 
-    robot.start();
-    while (opModeIsActive() && !isStopRequested()) {
+    robot.waitForStart();
+    while (opModeIsActive()) {
       double y = -gamepad1.left_stick_y; // Remember, this is reversed!
       double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
       double rx = gamepad1.right_stick_x;
@@ -71,7 +71,7 @@ public class ExampleLinearTeleop extends LinearOpMode {
       }
 
       // Manual control
-      if (!robot.lift.autoLift) {
+      if (!robot.lift.getAutoLift()) {
         robot.lift.manualLiftPower(-gamepad2.right_stick_y);
       }
 

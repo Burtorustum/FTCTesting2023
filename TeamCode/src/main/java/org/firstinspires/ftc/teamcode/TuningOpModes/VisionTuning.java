@@ -27,6 +27,6 @@ public class VisionTuning extends LinearOpMode {
       telemetry.update();
     }
 
-    detector.closeCamera();
+    detector.stopStreaming();
   }
 }

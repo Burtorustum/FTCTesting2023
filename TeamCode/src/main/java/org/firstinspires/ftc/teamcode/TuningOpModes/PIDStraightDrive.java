@@ -27,7 +27,7 @@ public class PIDStraightDrive extends LinearOpMode {
     waitForStart();
 
     while (!isStopRequested()) {
-      robot.drivetrain.driveDistance(targetIn, DistanceUnit.CM);
+      robot.drivetrain.driveDistance(targetIn, DistanceUnit.INCH);
       robot.update();
     }
   }

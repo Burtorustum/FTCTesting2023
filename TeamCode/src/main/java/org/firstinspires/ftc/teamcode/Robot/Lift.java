@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Robot.Structure.Subsystem;
 @Config
 public class Lift extends Subsystem {
 
-  // TODO: tune! (first kf, then p/d)
+  // TODO: tune! (first kg, then pid)
   public static PIDFCoefficients coefficients = new PIDFCoefficients(0, 0, 0);
   public static double kg = 0;
   private final PIDFController heightController = new PIDFController(coefficients);
@@ -36,6 +36,10 @@ public class Lift extends Subsystem {
 
     Height(int encoderTarget) {
       this.encoderTarget = encoderTarget;
+    }
+
+    public int getEncoderTarget(boolean shift) {
+      return encoderTarget - (shift ? 300 : 0);
     }
   }
 
@@ -60,7 +64,7 @@ public class Lift extends Subsystem {
     }
   }
 
-  public boolean autoLift;
+  private boolean autoLift;
   private Height height;
   private double liftPower; // 0 <= pow <= 1
   private boolean shiftHeight;
@@ -121,9 +125,8 @@ public class Lift extends Subsystem {
         this.liftPower = 0;
       } else {
         this.liftPower =
-            this.heightController.update(
-                this.height.encoderTarget - (this.shiftHeight ? SHIFT_HEIGHT_TICKS : 0),
-                encoderError) + kg;
+            this.heightController.update(height.getEncoderTarget(this.shiftHeight), encoderError)
+                + kg;
       }
     } else {
       // Only feed-forward gain for manual control
@@ -172,8 +175,7 @@ public class Lift extends Subsystem {
   }
 
   public double heightError(int encoderAvg) {
-    int error = this.height.encoderTarget - encoderAvg;
-    return error - (this.shiftHeight ? SHIFT_HEIGHT_TICKS : 0);
+    return this.height.getEncoderTarget(this.shiftHeight) - encoderAvg;
   }
 
   public void setClawPosition(ClawPosition clawPosition) {
@@ -190,6 +192,16 @@ public class Lift extends Subsystem {
 
   public void toAutomaticLift() {
     this.autoLift = true;
+  }
+
+  public boolean getAutoLift() {
+    return this.autoLift;
+  }
+
+  public double getError() {
+    int encoderAvg =
+        (this.slideTop.getCurrentPosition() + this.slideBottom.getCurrentPosition()) / 2;
+    return this.heightError(encoderAvg);
   }
 
   public void manualLiftPower(double liftPower) {

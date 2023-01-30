@@ -39,8 +39,8 @@ public abstract class Vision extends Subsystem {
     });
   }
 
-  public void closeCamera() {
-    webcam.closeCameraDeviceAsync(() -> {
-    });
+  public void stopStreaming() {
+    webcam.pauseViewport();
+    webcam.stopStreaming();
   }
 }

@@ -29,7 +29,8 @@ public abstract class Robot {
     this.subsystems = new ArrayList<>();
   }
 
-  public void start() {
+  public void waitForStart() {
+    this.runUntil(this.opMode::opModeIsActive);
     for (Subsystem sys : this.subsystems) {
       sys.start();
     }
@@ -53,7 +54,13 @@ public abstract class Robot {
   }
 
   public void runUntil(Target target) {
-    while (!opMode.isStopRequested() && !target.reached()) {
+    while (opMode.opModeIsActive() && !target.reached()) {
+      this.update();
+    }
+  }
+
+  public void runWhile(Target target) {
+    while (opMode.opModeIsActive() && target.reached()) {
       this.update();
     }
   }
@@ -71,4 +78,5 @@ public abstract class Robot {
 
     boolean reached();
   }
+
 }
