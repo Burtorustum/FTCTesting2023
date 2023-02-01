@@ -30,7 +30,7 @@ public abstract class Robot {
   }
 
   public void waitForStart() {
-    this.runUntil(this.opMode::opModeIsActive);
+    opMode.waitForStart();
     for (Subsystem sys : this.subsystems) {
       sys.start();
     }

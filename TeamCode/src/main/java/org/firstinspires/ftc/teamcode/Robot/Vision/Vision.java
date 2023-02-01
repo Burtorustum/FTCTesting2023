@@ -1,20 +1,23 @@
 package org.firstinspires.ftc.teamcode.Robot.Vision;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Robot.Structure.Subsystem;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-public abstract class Vision extends Subsystem {
+public abstract class Vision {
 
   public final OpenCvWebcam webcam;
+  protected final Telemetry telemetry;
 
   protected Vision(LinearOpMode opMode) {
-    super(opMode);
+    HardwareMap hwMap = opMode.hardwareMap;
+    telemetry = opMode.telemetry;
 
     int cameraMonitorViewId = hwMap.appContext.getResources()
         .getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
@@ -29,7 +32,10 @@ public abstract class Vision extends Subsystem {
     webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
       @Override
       public void onOpened() {
-        webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT); //UPSIDE_DOWN or UPRIGHT
+        webcam.startStreaming(480, 360, OpenCvCameraRotation.UPRIGHT); // 360p
+        //webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT); // 480p
+        //webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT); // 720p
+
       }
 
       @Override

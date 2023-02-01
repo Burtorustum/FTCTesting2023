@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Robot.TestBot;
-import org.firstinspires.ftc.teamcode.Robot.Vision.ConeDetector;
+import org.firstinspires.ftc.teamcode.Robot.Vision.RGBSignalSleeveDetector;
 
 @Config
 @Autonomous(name = "Example Auton", group = "Example")
@@ -24,24 +24,27 @@ public class ExampleLinearAuton extends LinearOpMode {
 
     // Init a robot object
     TestBot robot = new TestBot(this);
+
     // Enable vision for this opmode
-    ConeDetector detector = new ConeDetector(this);
+    RGBSignalSleeveDetector detector = new RGBSignalSleeveDetector(this);
 
     // Wait for opmode start
-    robot.runUntil(this::opModeIsActive);
+    robot.waitForStart();
+
     // disable vision once auton has begun
     detector.stopStreaming();
 
+    // Switch strafe distance based on vision determination
     switch (detector.getDetermination()) {
       case UNKNOWN:
       case ONE:
-        this.parkDistance = PARK_ONE_DIST;
+        parkDistance = PARK_ONE_DIST;
         break;
       case TWO:
-        this.parkDistance = PARK_TWO_DIST;
+        parkDistance = PARK_TWO_DIST;
         break;
       case THREE:
-        this.parkDistance = PARK_THREE_DIST;
+        parkDistance = PARK_THREE_DIST;
         break;
     }
 

@@ -16,7 +16,7 @@ public class TestBot extends Robot {
 
   // Subsystems
   public final MecanumDrivetrain drivetrain;
-  public final Lift lift;
+  public Lift lift;
 
   public TestBot(LinearOpMode opMode) {
     super(opMode);
@@ -33,8 +33,8 @@ public class TestBot extends Robot {
     this.drivetrain = new MecanumDrivetrain(opMode, imu);
     this.registerSubsystem(this.drivetrain);
 
-    this.lift = new Lift(opMode);
-    this.registerSubsystem(this.lift);
+    //this.lift = new Lift(opMode);
+    //this.registerSubsystem(this.lift);
 
     /*this.registerSubsystem(new Subsystem(opMode) {
       @Override

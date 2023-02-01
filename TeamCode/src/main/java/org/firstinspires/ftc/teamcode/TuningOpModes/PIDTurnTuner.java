@@ -5,14 +5,16 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Robot.TestBot;
 
-@Config
-@TeleOp(name = "PID Drive Tuner", group = "Tuning")
-public class PIDStraightDrive extends LinearOpMode {
+// See https://www.ctrlaltftc.com/the-pid-controller for more info on PID control
+// Designed for use with FTC Dashboard
 
-  public static int targetIn = 12;
+@Config
+@TeleOp(name = "PID Turn Tuner", group = "Tuning")
+public class PIDTurnTuner extends LinearOpMode {
+
+  public static int target = 90;
 
   @Override
   public void runOpMode() throws InterruptedException {
@@ -26,9 +28,10 @@ public class PIDStraightDrive extends LinearOpMode {
 
     waitForStart();
 
-    while (!isStopRequested()) {
-      robot.drivetrain.driveDistance(targetIn, DistanceUnit.INCH);
-      robot.update();
-    }
+    robot.runWhile(() -> {
+      robot.drivetrain.turn(target);
+
+      return true;
+    });
   }
 }

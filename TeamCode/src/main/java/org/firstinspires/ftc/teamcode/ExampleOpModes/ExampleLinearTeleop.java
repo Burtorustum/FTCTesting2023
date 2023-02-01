@@ -17,9 +17,8 @@ public class ExampleLinearTeleop extends LinearOpMode {
     TestBot robot = new TestBot(this);
 
     // Wait for opmode start
-    waitForStart();
-
     robot.waitForStart();
+
     while (opModeIsActive()) {
       double y = -gamepad1.left_stick_y; // Remember, this is reversed!
       double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing

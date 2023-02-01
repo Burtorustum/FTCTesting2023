@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Robot.TestBot;
 // ASSUMES DRIVE PID ALREADY TUNED
 @Config
 @TeleOp(name = "Tune Strafe Distance Mult", group = "Tuning")
-public class TuneStrafeDistance extends LinearOpMode {
+public class StrafeDistanceMultiplierTuner extends LinearOpMode {
 
   public static int DISTANCE_TARGET = 24;
   public static DistanceUnit UNIT = DistanceUnit.INCH;

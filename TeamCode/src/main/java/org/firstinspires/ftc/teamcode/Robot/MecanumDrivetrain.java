@@ -147,33 +147,23 @@ public class MecanumDrivetrain extends Subsystem {
 
   public void driveDistance(int distanceTarget, DistanceUnit unit) {
     int targetEncoders = (int) (unit.toMm(distanceTarget) * COUNTS_PER_MM);
-    this.setEncoderTargets(
-        targetEncoders + this.fl.getCurrentPosition(),
-        targetEncoders + this.fr.getCurrentPosition(),
-        targetEncoders + this.bl.getCurrentPosition(),
-        targetEncoders + this.br.getCurrentPosition()
-    );
+    this.updateEncoderTargets(targetEncoders, targetEncoders, targetEncoders, targetEncoders);
 
     this.mode = State.DRIVE_DISTANCE;
   }
 
   public void strafeDistance(int distanceTarget, DistanceUnit unit) {
     int targetEncoders = (int) (unit.toMm(distanceTarget * STRAFE_MULTIPLIER) * COUNTS_PER_MM);
-    this.setEncoderTargets(
-        targetEncoders + this.fl.getCurrentPosition(),
-        -targetEncoders + this.fr.getCurrentPosition(),
-        -targetEncoders + this.bl.getCurrentPosition(),
-        targetEncoders + this.br.getCurrentPosition()
-    );
+    this.updateEncoderTargets(targetEncoders, -targetEncoders, -targetEncoders, targetEncoders);
 
     this.mode = State.DRIVE_DISTANCE;
   }
 
-  private void setEncoderTargets(int flTarget, int frTarget, int blTarget, int brTarget) {
-    this.flTarget = flTarget;
-    this.frTarget = frTarget;
-    this.blTarget = blTarget;
-    this.brTarget = brTarget;
+  private void updateEncoderTargets(int flTarget, int frTarget, int blTarget, int brTarget) {
+    this.flTarget = flTarget + this.fl.getCurrentPosition();
+    this.frTarget = frTarget + this.fr.getCurrentPosition();
+    this.blTarget = blTarget + this.bl.getCurrentPosition();
+    this.brTarget = brTarget + this.br.getCurrentPosition();
   }
 
   public boolean driveComplete() {

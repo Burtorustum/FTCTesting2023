@@ -5,28 +5,30 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.Robot.Vision.ConeDetector;
-import org.firstinspires.ftc.teamcode.Robot.Vision.Vision;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Robot.TestBot;
 
 @Config
-@TeleOp(name = "Vision Tuner", group = "Tuning")
-public class VisionTuning extends LinearOpMode {
+@TeleOp(name = "PID Drive Tuner", group = "Tuning")
+public class PIDStraightDriveTuner extends LinearOpMode {
+
+  public static int targetIn = 24;
 
   @Override
   public void runOpMode() throws InterruptedException {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
-    // Replace with different detector as-needed
-    Vision detector = new ConeDetector(this);
-    dashboard.startCameraStream(detector.webcam, 0);
+    TestBot robot = new TestBot(this);
+
+    telemetry.addLine("Ready!");
+    telemetry.update();
 
     waitForStart();
-    while (opModeIsActive() && !isStopRequested()) {
-      detector.update(telemetry);
-      telemetry.update();
-    }
 
-    detector.stopStreaming();
+    while (!isStopRequested()) {
+      robot.drivetrain.driveDistance(targetIn, DistanceUnit.INCH);
+      robot.update();
+    }
   }
 }

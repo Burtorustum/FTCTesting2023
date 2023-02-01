@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Robot.Lift.Height;
 import org.firstinspires.ftc.teamcode.Robot.TestBot;
 
 @TeleOp(name = "PIDF Lift Tuner", group = "Tuning")
-public class PIDFLiftTuning extends LinearOpMode {
+public class PIDFLiftTuner extends LinearOpMode {
 
   @Override
   public void runOpMode() throws InterruptedException {

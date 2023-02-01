@@ -51,7 +51,9 @@ public class PIDFController {
     // reset the timer for next time
     timer.reset();
 
-    return (coeff.kp * error) + (coeff.ki * integralSum) + (coeff.kd * derivative) + (coeff.kf
-        * target);
+    return (coeff.kp * error)
+        + (coeff.ki * integralSum)
+        + (coeff.kd * derivative)
+        + (coeff.kf * target);
   }
 }
