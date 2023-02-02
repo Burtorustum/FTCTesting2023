@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Control.PIDFController;
 import org.firstinspires.ftc.teamcode.Robot.Structure.Subsystem;
 
 @Config
-public class Lift extends Subsystem {
+public class Lift implements Subsystem {
 
   // TODO: tune! (first kg, then pid)
   public static PIDFCoefficients coefficients = new PIDFCoefficients(0, 0, 0);
@@ -74,11 +74,10 @@ public class Lift extends Subsystem {
   private SwivelPosition swivelPosition; // 0 <= theta <= 180
 
 
-  public Lift(LinearOpMode opMode) {
-    super(opMode);
+  public Lift(OpMode opMode) {
 
-    slideTop = hwMap.get(DcMotorEx.class, "slideTop");
-    slideBottom = hwMap.get(DcMotorEx.class, "slideBottom");
+    slideTop = opMode.hardwareMap.get(DcMotorEx.class, "slideTop");
+    slideBottom = opMode.hardwareMap.get(DcMotorEx.class, "slideBottom");
 
     // Set the direction of the system motors based on their orientation on the bot
     slideTop.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -92,10 +91,10 @@ public class Lift extends Subsystem {
     slideTop.setMode(RunMode.STOP_AND_RESET_ENCODER);
     slideBottom.setMode(RunMode.STOP_AND_RESET_ENCODER);
 
-    swivel = hwMap.get(Servo.class, "swivel");
-    magLim = hwMap.get(TouchSensor.class, "magLim");
-    clawLeft = hwMap.get(Servo.class, "clawLeft");
-    clawRight = hwMap.get(Servo.class, "clawRight");
+    swivel = opMode.hardwareMap.get(Servo.class, "swivel");
+    magLim = opMode.hardwareMap.get(TouchSensor.class, "magLim");
+    clawLeft = opMode.hardwareMap.get(Servo.class, "clawLeft");
+    clawRight = opMode.hardwareMap.get(Servo.class, "clawRight");
 
     clawLeft.setPosition(ClawPosition.CLOSED.leftServoPosition);
     clawRight.setPosition(ClawPosition.CLOSED.rightServoPosition);

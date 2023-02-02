@@ -39,7 +39,7 @@ public class TestRun extends LinearOpMode {
   public static double centralParkY = -12;
   public static double centralParkHeading = 90;
 
-  public static PARK determination = PARK.ONE;
+  public static PARK determination = PARK.THREE;
 
   @Override
   public void runOpMode() throws InterruptedException {

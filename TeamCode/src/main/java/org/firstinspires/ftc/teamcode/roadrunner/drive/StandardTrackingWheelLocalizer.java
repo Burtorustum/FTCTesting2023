@@ -30,11 +30,15 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
   public static double WHEEL_RADIUS = 0.6889764; // in
   public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-  public static double LATERAL_DISTANCE = 13.951; // in; distance between the left and right wheels
+  // TODO: retune lat dist and forward offset
+  public static double LATERAL_DISTANCE = 13.951; // in; distance between the left and right odom wheels
   public static double FORWARD_OFFSET = 0; // in; offset of the lateral wheel
 
-  private Encoder leftEncoder, rightEncoder, frontEncoder;
+  private final Encoder leftEncoder;
+  private final Encoder rightEncoder;
+  private final Encoder frontEncoder;
 
+  // TODO: retune x/y mult
   double X_MULT = 1.0344;
   double Y_MULT = 1.0239;
 
@@ -49,7 +53,6 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "r"));
     frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "m"));
 
-    // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
     frontEncoder.setDirection(Encoder.Direction.REVERSE);
   }
 
@@ -70,10 +73,6 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
   @NonNull
   @Override
   public List<Double> getWheelVelocities() {
-    // TODO: If your encoder velocity can exceed 32767 counts / second (such as the REV Through Bore and other
-    //  competing magnetic encoders), change Encoder.getRawVelocity() to Encoder.getCorrectedVelocity() to enable a
-    //  compensation method
-
     return Arrays.asList(
         encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * X_MULT,
         encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * X_MULT,

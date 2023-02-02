@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 /*
  * Constants shared between multiple drive types.
  *
- * TODO: Tune or adjust the following constants to fit your robot. Note that the non-final
+ * Tune or adjust the following constants to fit your robot. Note that the non-final
  * fields may also be edited through the dashboard (connect to the robot's WiFi network and
  * navigate to https://192.168.49.1:8080/dash). Make sure to save the values here after you
  * adjust them in the dashboard; **config variable changes don't persist between app restarts**.
@@ -43,9 +43,10 @@ public class DriveConstants {
    * angular distances although most angular parameters are wrapped in Math.toRadians() for
    * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
    */
+  // TODO: retune track width
   public static double WHEEL_RADIUS = 1.88976; // in
   public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-  public static double TRACK_WIDTH = 12.69; // in
+  public static double TRACK_WIDTH = 12.69; // in from center->center drivetrain wheels
 
   /*
    * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -53,10 +54,10 @@ public class DriveConstants {
    * motor encoders or have elected not to use them for velocity control, these values should be
    * empirically tuned.
    */
-  //public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-  public static double kV = 0.0175;
-  public static double kA = 0.004;
-  public static double kStatic = 0.01;
+  // TODO: retune feedforward
+  public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
+  public static double kA = 0;
+  public static double kStatic = 0;
 
   /*
    * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -65,11 +66,10 @@ public class DriveConstants {
    * small and gradually increase them later after everything is working. All distance units are
    * inches.
    */
-  // TODO: check w maxVelTuner, or possibly just use 30 and slowly increase until bad
-//    public static double MAX_VEL = 52.48180821614297;
-//    public static double MAX_ACCEL = 52.48180821614297;
-  public static double MAX_VEL = 40;
-  public static double MAX_ACCEL = 40;
+  // TODO: check w maxVelTuner
+  // Theoretical max vel = 61.7433037837 --> * 0.8 = 49.3 --> start at 45 (
+  public static double MAX_VEL = 45;
+  public static double MAX_ACCEL = 45;
   public static double MAX_ANG_VEL = Math.toRadians(180);
   public static double MAX_ANG_ACCEL = Math.toRadians(180);
 

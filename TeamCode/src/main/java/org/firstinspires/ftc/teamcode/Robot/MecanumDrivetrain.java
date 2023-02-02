@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Control.PIDFController;
 import org.firstinspires.ftc.teamcode.Robot.Structure.Subsystem;
 
 @Config
-public class MecanumDrivetrain extends Subsystem {
+public class MecanumDrivetrain implements Subsystem {
 
   private static final double COUNTS_PER_REV = 537.7;
   private static final double WHEEL_DIAMETER_MM = 96;
@@ -42,13 +42,12 @@ public class MecanumDrivetrain extends Subsystem {
 
   private State mode = State.IDLE;
 
-  public MecanumDrivetrain(LinearOpMode opMode, IMU imu) {
-    super(opMode);
+  public MecanumDrivetrain(OpMode opMode, IMU imu) {
 
-    fl = hwMap.get(DcMotorEx.class, "FL");
-    fr = hwMap.get(DcMotorEx.class, "FR");
-    bl = hwMap.get(DcMotorEx.class, "BL");
-    br = hwMap.get(DcMotorEx.class, "BR");
+    fl = opMode.hardwareMap.get(DcMotorEx.class, "FL");
+    fr = opMode.hardwareMap.get(DcMotorEx.class, "FR");
+    bl = opMode.hardwareMap.get(DcMotorEx.class, "BL");
+    br = opMode.hardwareMap.get(DcMotorEx.class, "BR");
 
     fl.setDirection(DcMotorSimple.Direction.REVERSE);
     fr.setDirection(DcMotorSimple.Direction.FORWARD);
