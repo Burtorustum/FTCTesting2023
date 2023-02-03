@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 public class TestRun extends LinearOpMode {
 
   public enum PARK {
-    ONE(-24), TWO(0), THREE(24);
+    ONE(-28), TWO(0), THREE(28);
 
     public final int inches;
 
@@ -28,16 +28,19 @@ public class TestRun extends LinearOpMode {
   public static double startHeading = 90;
 
   public static double gatherX = -55;
-  public static double gatherY = -12;
+  public static double gatherY = -8;
   public static double gatherHeading = 180;
 
-  public static double placeX = -32;
-  public static double placeY = -8;
+  public static double placeX = -30;
+  public static double placeY = -6;
   public static double placeHeading = 45;
 
   public static double centralParkX = -36;
-  public static double centralParkY = -12;
+  public static double centralParkY = -10;
   public static double centralParkHeading = 90;
+
+  public static double waitPlace = 0.5;
+  public static double waitGather = 0.5;
 
   public static PARK determination = PARK.THREE;
 
@@ -65,7 +68,7 @@ public class TestRun extends LinearOpMode {
         .UNSTABLE_addTemporalMarkerOffset(-2, () -> { /* Raise the lift */ })
         .splineTo(placePose.vec(), placePose.getHeading())
         .addDisplacementMarker(() -> { /* Release Cone  */ })
-        .waitSeconds(0.5)
+        .waitSeconds(waitPlace)
         .addDisplacementMarker(() -> { /* lower lift */})
 
         // Cycle 1
@@ -73,11 +76,11 @@ public class TestRun extends LinearOpMode {
         .splineTo(gatherPose.vec(), gatherPose.getHeading())
         .UNSTABLE_addDisplacementMarkerOffset(-1, () -> { /* extend intake */ })
         .addDisplacementMarker(() -> { /* grab cone */ })
-        .waitSeconds(1)
+        .waitSeconds(waitGather)
         .setReversed(false)
         .splineTo(placePose.vec(), placePose.getHeading())
         .addDisplacementMarker(() -> { /* Release Cone  */ })
-        .waitSeconds(0.5)
+        .waitSeconds(waitPlace)
         .addDisplacementMarker(() -> { /* lower lift */})
 
         // Cycle 2
@@ -85,11 +88,11 @@ public class TestRun extends LinearOpMode {
         .splineTo(gatherPose.vec(), gatherPose.getHeading())
         .UNSTABLE_addDisplacementMarkerOffset(-1, () -> { /* extend intake */ })
         .addDisplacementMarker(() -> { /* grab cone */ })
-        .waitSeconds(1)
+        .waitSeconds(waitGather)
         .setReversed(false)
         .splineTo(placePose.vec(), placePose.getHeading())
         .addDisplacementMarker(() -> { /* Release Cone  */ })
-        .waitSeconds(0.5)
+        .waitSeconds(waitPlace)
         .addDisplacementMarker(() -> { /* lower lift */})
 
         // Cycle 3
@@ -97,11 +100,11 @@ public class TestRun extends LinearOpMode {
         .splineTo(gatherPose.vec(), gatherPose.getHeading())
         .UNSTABLE_addDisplacementMarkerOffset(-1, () -> { /* extend intake */ })
         .addDisplacementMarker(() -> { /* grab cone */ })
-        .waitSeconds(1)
+        .waitSeconds(waitGather)
         .setReversed(false)
         .splineTo(placePose.vec(), placePose.getHeading())
         .addDisplacementMarker(() -> { /* Release Cone  */ })
-        .waitSeconds(0.5)
+        .waitSeconds(waitPlace)
         .addDisplacementMarker(() -> { /* lower lift */})
 
         // Cycle 4
@@ -109,11 +112,11 @@ public class TestRun extends LinearOpMode {
         .splineTo(gatherPose.vec(), gatherPose.getHeading())
         .UNSTABLE_addDisplacementMarkerOffset(-1, () -> { /* extend intake */ })
         .addDisplacementMarker(() -> { /* grab cone */ })
-        .waitSeconds(1)
+        .waitSeconds(waitGather)
         .setReversed(false)
         .splineTo(placePose.vec(), placePose.getHeading())
         .addDisplacementMarker(() -> { /* Release Cone  */ })
-        .waitSeconds(0.5)
+        .waitSeconds(waitPlace)
         .addDisplacementMarker(() -> { /* lower lift */})
 
         // Cycle 5
@@ -121,7 +124,7 @@ public class TestRun extends LinearOpMode {
         .splineTo(gatherPose.vec(), gatherPose.getHeading())
         .UNSTABLE_addDisplacementMarkerOffset(-1, () -> { /* extend intake */ })
         .addDisplacementMarker(() -> { /* grab cone */ })
-        .waitSeconds(1)
+        .waitSeconds(waitGather)
         .setReversed(false)
         .splineTo(placePose.vec(), placePose.getHeading())
         .addDisplacementMarker(() -> { /* Release Cone  */ })

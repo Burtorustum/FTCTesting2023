@@ -44,8 +44,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
 public class SampleMecanumDrive extends MecanumDrive {
 
   // TODO: tune translation & heading pid (may want kd, but not ki)
-  public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(1, 0, 0);
-  public static PIDCoefficients HEADING_PID = new PIDCoefficients(1, 0, 0);
+  public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0.1);
+  public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
   public static double LATERAL_MULTIPLIER = 1.2;
 
